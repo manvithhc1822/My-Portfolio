@@ -1,0 +1,603 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ShopHub - Your Online Store</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Arial', sans-serif; background-color: #f8f9fa; }
+  
+  /* 🔹 Header */
+  .nav-container {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    background-color: #0d6efd; padding: 10px 20px; color: #fff;
+  }
+  .logo-container { display: flex; align-items: center; gap: 10px; }
+  .logo { font-size: 22px; font-weight: bold; }
+  .logo-img { width: 40px; height: 40px; border-radius: 50%; }
+  .search { flex: 1 1 300px; margin: 10px 20px; display: flex; }
+  .search-box { flex: 1; padding: 8px; border: none; font-size: 16px; border-radius: 4px 0 0 4px; }
+  .search-btn { padding: 8px 16px; background: #ffc107; border: none; cursor: pointer; border-radius: 0 4px 4px 0; }
+  .nav-actions { display: flex; align-items: center; gap: 15px; }
+  .nav-actions button, .nav-actions div { background: #fff; color: #0d6efd; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+  .nav-actions div { background: transparent; color: #fff; cursor: pointer; }
+  
+  /* 🔹 Categories */
+  .categories {
+    display: flex; flex-wrap: wrap; justify-content: center;
+    background: #fff; padding: 10px; gap: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .categories div {
+    padding: 8px 14px; border-radius: 20px;
+    background: #e9ecef; font-weight: bold; cursor: pointer; transition: 0.2s;
+  }
+  .categories div:hover { background: #0d6efd; color: #fff; }
+  
+  /* 🔹 Products */
+  .products {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px; padding: 20px;
+  }
+  .product {
+    background: #fff; border-radius: 8px; padding: 15px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1); display: flex; flex-direction: column;
+  }
+  .main-image { width: 100%; height: 200px; object-fit: contain; margin-bottom: 10px; }
+  .thumbnails { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .thumbnail-img { width: 40px; height: 40px; object-fit: contain; border: 2px solid transparent; cursor: pointer; border-radius: 4px; }
+  .thumbnail-img.selected { border-color: #0d6efd; }
+  .product-title { font-size: 16px; font-weight: bold; margin-bottom: 5px; }
+  .product-price { color: #198754; font-weight: bold; margin-bottom: 10px; }
+  .product button { padding: 8px; border: none; border-radius: 4px; cursor: pointer; margin: 5px 0; }
+  .product .add { background-color: #0d6efd; color: white; }
+  .product .buy { background-color: #198754; color: white; }
+  
+  /* 🔹 Cart Modal */
+  .cart-modal {
+    position: fixed; top: 10%; right: 5%; width: 90%; max-width: 400px; 
+    background: white; border-radius: 8px; padding: 20px; z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; max-height: 70%; overflow-y: auto;
+  }
+  .cart-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 8px; }
+  .cart-item img { width: 40px; height: 40px; border-radius: 4px; object-fit: cover; }
+  .cart-item-details { flex: 1; }
+  .cart-item-actions { display: flex; gap: 5px; }
+  .cart-item button { background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
+  .cart-item .buy-now-btn { background: #198754; }
+  
+  /* 🔹 Auth Modal */
+  .auth-modal {
+    position: fixed; top: 10%; left: 50%; transform: translateX(-50%);
+    width: 90%; max-width: 400px; background: white; border-radius: 8px;
+    padding: 20px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: none;
+  }
+  .auth-tabs { display: flex; margin-bottom: 15px; }
+  .auth-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; border-bottom: 2px solid #ddd; }
+  .auth-tab.active { border-bottom: 2px solid #0d6efd; color: #0d6efd; font-weight: bold; }
+  .auth-form { display: none; }
+  .auth-form.active { display: block; }
+  .auth-form input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; }
+  .auth-form button { width: 100%; padding: 10px; background: #0d6efd; color: white; border: none; border-radius: 4px; margin-top: 10px; cursor: pointer; }
+  .auth-form .switch-form { text-align: center; margin-top: 10px; color: #0d6efd; cursor: pointer; }
+  
+  /* 🔹 Payment Modal */
+  .payment-modal {
+    position: fixed; top: 5%; left: 50%; transform: translateX(-50%);
+    width: 90%; max-width: 500px; background: white; border-radius: 8px;
+    padding: 20px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: none; max-height: 80%; overflow-y: auto;
+  }
+  .payment-option { padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin: 10px 0; cursor: pointer; }
+  .payment-option:hover { background: #f8f9fa; }
+  .payment-option.selected { background: #e9f5ff; border-color: #0d6efd; }
+  .payment-form { display: none; margin-top: 20px; }
+  .payment-form input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; }
+  .payment-form button { width: 100%; padding: 10px; background: #198754; color: white; border: none; border-radius: 4px; margin-top: 10px; cursor: pointer; }
+  
+  /* 🔹 Orders Modal */
+  .orders-modal {
+    position: fixed; top: 10%; right: 5%; width: 90%; max-width: 400px; 
+    background: white; border-radius: 8px; padding: 20px; z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; max-height: 70%; overflow-y: auto;
+  }
+  .order-item { display: flex; align-items: center; margin-bottom: 15px; gap: 10px; padding: 10px; border: 1px solid #eee; border-radius: 8px; }
+  .order-item img { width: 50px; height: 50px; border-radius: 4px; object-fit: cover; }
+  .order-details { flex: 1; }
+  .order-status { font-size: 12px; padding: 2px 8px; border-radius: 12px; display: inline-block; margin-top: 5px; }
+  .status-delivered { background: #d4edda; color: #155724; }
+  .status-processing { background: #fff3cd; color: #856404; }
+  .status-cancelled { background: #f8d7da; color: #721c24; }
+  
+  /* 🔹 Footer */
+  footer { text-align: center; padding: 20px; background: #0d6efd; color: #fff; margin-top: 20px; }
+  
+  /* 🔹 Overlay */
+  .overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); z-index: 999; display: none;
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="nav-container">
+    <div class="logo-container">
+      <img src="https://uploads.onecompiler.io/44b62kcqu/44dk2tnnc/ChatGPT%20Image%20Feb%2014,%202026,%2010_17_21%20AM.png" alt="ShopHub Logo" class="logo-img">
+      <div class="logo">ShopHub</div>
+    </div>
+    <div class="search">
+      <input type="text" id="searchBox" class="search-box" placeholder="Search products..." onkeyup="filterProducts()" />
+      <button class="search-btn" onclick="filterProducts()">Search</button>
+    </div>
+    <div class="nav-actions">
+      <button id="authBtn">Login</button>
+      <div id="ordersBtn" style="display: none;">Orders</div>
+      <div id="cartBtn">Cart (<span id="cartCount">0</span>)</div>
+    </div>
+  </div>
+</header>
+
+<!-- 🔹 Categories -->
+<section class="categories" id="categoryList"></section>
+
+<!-- 🔹 Products -->
+<section class="products" id="productList"></section>
+
+<!-- 🔹 Overlay -->
+<div class="overlay" id="overlay"></div>
+
+<!-- 🔹 Auth Modal -->
+<div class="auth-modal" id="authModal">
+  <div class="auth-tabs">
+    <div class="auth-tab active" onclick="switchTab('login')">Login</div>
+    <div class="auth-tab" onclick="switchTab('signup')">Sign Up</div>
+  </div>
+  
+  <div id="loginForm" class="auth-form active">
+    <h2>Login to ShopHub</h2>
+    <input type="text" id="loginUsername" placeholder="Username" />
+    <input type="password" id="loginPassword" placeholder="Password" />
+    <button onclick="login()">Login</button>
+    <div class="switch-form" onclick="switchTab('signup')">Don't have an account? Sign up</div>
+  </div>
+  
+  <div id="signupForm" class="auth-form">
+    <h2>Create Account</h2>
+    <input type="text" id="signupUsername" placeholder="Username" />
+    <input type="email" id="signupEmail" placeholder="Email" />
+    <input type="password" id="signupPassword" placeholder="Password" />
+    <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" />
+    <button onclick="signup()">Sign Up</button>
+    <div class="switch-form" onclick="switchTab('login')">Already have an account? Login</div>
+  </div>
+  
+  <button onclick="closeAuth()" style="background: #6c757d; margin-top: 10px; width: 100%;">Cancel</button>
+</div>
+
+<!-- 🔹 Payment Modal -->
+<div class="payment-modal" id="paymentModal">
+  <h2>Select Payment Method</h2>
+  <div id="paymentOptions">
+    <div class="payment-option" onclick="selectPayment('credit-card')">
+      <h3>Credit/Debit Card</h3>
+      <p>Pay using your credit or debit card</p>
+    </div>
+    <div class="payment-option" onclick="selectPayment('upi')">
+      <h3>UPI</h3>
+      <p>Pay using any UPI app</p>
+    </div>
+    <div class="payment-option" onclick="selectPayment('cod')">
+      <h3>Cash on Delivery</h3>
+      <p>Pay when you receive your order</p>
+    </div>
+  </div>
+  
+  <div id="creditCardForm" class="payment-form">
+    <h3>Card Details</h3>
+    <input type="text" placeholder="Card Number" />
+    <input type="text" placeholder="Name on Card" />
+    <div style="display: flex; gap: 10px;">
+      <input type="text" placeholder="MM/YY" style="flex: 1;" />
+      <input type="text" placeholder="CVV" style="flex: 1;" />
+    </div>
+    <button onclick="processPayment()">Pay Now</button>
+  </div>
+  
+  <div id="upiForm" class="payment-form">
+    <h3>UPI Details</h3>
+    <input type="text" placeholder="Enter UPI ID" />
+    <button onclick="processPayment()">Pay Now</button>
+  </div>
+  
+  <div id="codForm" class="payment-form">
+    <h3>Cash on Delivery</h3>
+    <p>You will pay when the product is delivered to you.</p>
+    <button onclick="processPayment()">Place Order</button>
+  </div>
+  
+  <button onclick="closePayment()" style="background: #6c757d; margin-top: 10px;">Cancel</button>
+</div>
+
+<!-- 🔹 Cart -->
+<section class="cart-modal" id="cartModal">
+  <h2>Your Cart</h2>
+  <div id="cartItems"></div>
+  <button onclick="closeCart()">Close</button>
+</section>
+
+<!-- 🔹 Orders -->
+<section class="orders-modal" id="ordersModal">
+  <h2>Your Orders</h2>
+  <div id="ordersList"></div>
+  <button onclick="closeOrders()">Close</button>
+</section>
+
+<footer>© 2025 ShopHub - All Rights Reserved</footer>
+
+<script>
+/* ✅ Product list with categories */
+const products = [
+  { id: 1, title: "iPhone 14 Pro", price: 129999, category: "Mobiles", images: [
+    "https://images.unsplash.com/photo-1677144646095-ecd95d06cd71?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aXBob25lJTIwMTQlMjBwcm98ZW58MHx8MHx8fDA%3D"
+  ]},
+  { id: 2, title: "Dell XPS Laptop", price: 99999, category: "Laptops", images: [
+    "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=600",
+  ]},
+  { id: 3, title: "Smartwatch", price: 6999, category: "Watches", images: [
+    "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600",
+  ]},
+  { id: 4, title: "Running Shoes", price: 3499, category: "Shoes", images: [
+    "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600"
+  ]},
+  { id: 5, title: "Head Phones", price: 45999, category: "Electronics", images: [
+    "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600",
+  ]},
+  { id: 6, title: "Sofa Set", price: 25999, category: "Furniture", images: [
+    "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c29mYXxlbnwwfHwwfHx8MA%3D%3D",
+  ]},
+  { id: 7, title: "Men's Jacket", price: 1999, category: "Fashion", images: [
+    "https://images.unsplash.com/photo-1611312449408-fcece27cdbb7?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8bWVucyUyMGphY2tldHxlbnwwfHwwfHx8MA%3D%3D",
+  ]},
+  { id: 8, title: "Microwave Oven", price: 8999, category: "Home", images: [
+    "https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fG1pY3JvJTIwb3ZlbnxlbnwwfHwwfHx8MA%3D%3D"
+  ]}
+];
+
+/* 🔹 Categories auto-generated */
+const categories = [...new Set(products.map(p => p.category))];
+const categoryList = document.getElementById("categoryList");
+categoryList.innerHTML = `<div onclick="filterByCategory('All')">All</div>` + 
+  categories.map(cat => `<div onclick="filterByCategory('${cat}')">${cat}</div>`).join("");
+
+const cart = [];
+let currentUser = null;
+let orders = [];
+let currentProduct = null;
+let users = JSON.parse(localStorage.getItem('shopHubUsers')) || [];
+
+/* 🔹 Display products */
+function displayProducts(list = products) {
+  const productList = document.getElementById("productList");
+  productList.innerHTML = "";
+  list.forEach(product => {
+    let mainImg = product.images[0];
+    let thumbnails = product.images.map((src,i) =>
+      `<img src="${src}" class="thumbnail-img ${i===0 ? 'selected' : ''}" onclick="changeMainImage(event, ${product.id}, '${src}')">`
+    ).join("");
+    productList.innerHTML += `
+      <div class="product">
+        <img src="${mainImg}" class="main-image" id="mainImage-${product.id}" />
+        <div class="thumbnails">${thumbnails}</div>
+        <div class="product-title">${product.title}</div>
+        <div class="product-price">₹${product.price.toLocaleString()}</div>
+        <button class="add" onclick="addToCart(${product.id})">Add to Cart</button>
+        <button class="buy" onclick="buyNow(${product.id})">Buy Now</button>
+      </div>
+    `;
+  });
+}
+
+function changeMainImage(event, productId, src) {
+  document.getElementById(`mainImage-${productId}`).src = src;
+  event.target.parentNode.querySelectorAll(".thumbnail-img").forEach(img => img.classList.remove("selected"));
+  event.target.classList.add("selected");
+}
+
+function addToCart(productId) {
+  const product = products.find(p => p.id === productId);
+  cart.push(product);
+  updateCartCount();
+  alert(`${product.title} added to cart!`);
+}
+
+function buyNow(productId) {
+  if (!currentUser) {
+    showAuth();
+    currentProduct = products.find(p => p.id === productId);
+    return;
+  }
+  currentProduct = products.find(p => p.id === productId);
+  showPayment();
+}
+
+function updateCartCount() {
+  document.getElementById("cartCount").textContent = cart.length;
+}
+function showCart() {
+  const cartModal = document.getElementById("cartModal");
+  const cartItems = document.getElementById("cartItems");
+  cartItems.innerHTML = cart.length === 0 ? "<p>Your cart is empty.</p>" : "";
+  cart.forEach((item,index) => {
+    cartItems.innerHTML += `
+      <div class="cart-item">
+        <img src="${item.images[0]}">
+        <div class="cart-item-details">
+          <span>${item.title} - ₹${item.price.toLocaleString()}</span>
+          <div class="cart-item-actions">
+            <button class="buy-now-btn" onclick="buyNowFromCart(${index})">Buy Now</button>
+            <button onclick="removeFromCart(${index})">Remove</button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  cartModal.style.display = "block";
+  document.getElementById("overlay").style.display = "block";
+}
+
+function closeCart() {
+  document.getElementById("cartModal").style.display = "none";
+  document.getElementById("overlay").style.display = "none";
+}
+
+function removeFromCart(index) {
+  cart.splice(index,1);
+  updateCartCount();
+  showCart();
+}
+
+function buyNowFromCart(index) {
+  if (!currentUser) {
+    showAuth();
+    currentProduct = cart[index];
+    return;
+  }
+  currentProduct = cart[index];
+  showPayment();
+}
+
+function filterProducts() {
+  const query = document.getElementById("searchBox").value.toLowerCase();
+  const filtered = products.filter(p => p.title.toLowerCase().includes(query));
+  displayProducts(filtered);
+}
+
+function filterByCategory(category) {
+  if (category === "All") displayProducts(products);
+  else displayProducts(products.filter(p => p.category === category));
+}
+
+/* 🔹 Auth Functions */
+function showAuth() {
+  document.getElementById("authModal").style.display = "block";
+  document.getElementById("overlay").style.display = "block";
+}
+
+function closeAuth() {
+  document.getElementById("authModal").style.display = "none";
+  document.getElementById("overlay").style.display = "none";
+}
+
+function switchTab(tab) {
+  // Update tabs
+  document.querySelectorAll(".auth-tab").forEach(t => t.classList.remove("active"));
+  document.querySelector(`.auth-tab:nth-child(${tab === 'login' ? '1' : '2'})`).classList.add("active");
+  
+  // Update forms
+  document.querySelectorAll(".auth-form").forEach(f => f.classList.remove("active"));
+  document.getElementById(`${tab}Form`).classList.add("active");
+}
+
+function signup() {
+  const username = document.getElementById("signupUsername").value;
+  const email = document.getElementById("signupEmail").value;
+  const password = document.getElementById("signupPassword").value;
+  const confirmPassword = document.getElementById("signupConfirmPassword").value;
+  
+  if (!username || !email || !password || !confirmPassword) {
+    alert("Please fill all fields");
+    return;
+  }
+  
+  if (password !== confirmPassword) {
+    alert("Passwords do not match");
+    return;
+  }
+  
+  // Check if username already exists
+  if (users.some(user => user.username === username)) {
+    alert("Username already exists");
+    return;
+  }
+  
+  // Create new user
+  const newUser = { username, email, password };
+  users.push(newUser);
+  localStorage.setItem('shopHubUsers', JSON.stringify(users));
+  
+  alert("Account created successfully! Please login.");
+  switchTab('login');
+  
+  // Clear form
+  document.getElementById("signupUsername").value = "";
+  document.getElementById("signupEmail").value = "";
+  document.getElementById("signupPassword").value = "";
+  document.getElementById("signupConfirmPassword").value = "";
+}
+
+function login() {
+  const username = document.getElementById("loginUsername").value;
+  const password = document.getElementById("loginPassword").value;
+  
+  if (!username || !password) {
+    alert("Please enter both username and password");
+    return;
+  }
+  
+  // Find user
+  const user = users.find(u => u.username === username && u.password === password);
+  
+  if (user) {
+    currentUser = { username: user.username, email: user.email };
+    document.getElementById("authBtn").textContent = "Logout";
+    document.getElementById("ordersBtn").style.display = "block";
+    closeAuth();
+    
+    // If there was a product selected for buy now before login
+    if (currentProduct) {
+      showPayment();
+    }
+    // Clear form
+    document.getElementById("loginUsername").value = "";
+    document.getElementById("loginPassword").value = "";
+  } else {
+    alert("Invalid username or password");
+  }
+}
+
+/* 🔹 Payment Functions */
+function showPayment() {
+  document.getElementById("paymentModal").style.display = "block";
+  document.getElementById("overlay").style.display = "block";
+  
+  // Reset payment options
+  document.querySelectorAll(".payment-form").forEach(form => form.style.display = "none");
+  document.querySelectorAll(".payment-option").forEach(option => option.classList.remove("selected"));
+}
+
+function closePayment() {
+  document.getElementById("paymentModal").style.display = "none";
+  document.getElementById("overlay").style.display = "none";
+}
+
+function selectPayment(method) {
+  // Reset all forms
+  document.querySelectorAll(".payment-form").forEach(form => form.style.display = "none");
+  document.querySelectorAll(".payment-option").forEach(option => option.classList.remove("selected"));
+  
+  // Highlight selected option
+  event.target.closest(".payment-option").classList.add("selected");
+  
+  // Show relevant form
+  if (method === "credit-card") {
+    document.getElementById("creditCardForm").style.display = "block";
+  } else if (method === "upi") {
+    document.getElementById("upiForm").style.display = "block";
+  } else if (method === "cod") {
+    document.getElementById("codForm").style.display = "block";
+  }
+}
+
+function processPayment() {
+  // Create order
+  const order = {
+    id: orders.length + 1,
+    product: currentProduct,
+    date: new Date().toLocaleDateString(),
+    status: "processing"
+  };
+  
+  orders.push(order);
+  
+  // Remove item from cart if it was added there
+  const cartIndex = cart.findIndex(item => item.id === currentProduct.id);
+  if (cartIndex !== -1) {
+    cart.splice(cartIndex, 1);
+    updateCartCount();
+  }
+  
+  // Show success message
+  alert(`Order placed successfully! Your order ID is #${order.id}`);
+  
+  // Close payment modal
+  closePayment();
+  
+  // Reset current product
+  currentProduct = null;
+}
+
+/* 🔹 Orders Functions */
+function showOrders() {
+  const ordersModal = document.getElementById("ordersModal");
+  const ordersList = document.getElementById("ordersList");
+  
+  if (orders.length === 0) {
+    ordersList.innerHTML = "<p>You haven't placed any orders yet.</p>";
+  } else {
+    ordersList.innerHTML = "";
+    orders.forEach(order => {
+      let statusClass = "status-processing";
+      if (order.status === "delivered") statusClass = "status-delivered";
+      else if (order.status === "cancelled") statusClass = "status-cancelled";
+      
+      ordersList.innerHTML += `
+        <div class="order-item">
+          <img src="${order.product.images[0]}">
+          <div class="order-details">
+            <div>${order.product.title}</div>
+            <div>₹${order.product.price.toLocaleString()}</div>
+            <div>Order #${order.id} - ${order.date}</div>
+            <span class="order-status ${statusClass}">${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
+          </div>
+        </div>
+      `;
+    });
+  }
+  
+  ordersModal.style.display = "block";
+  document.getElementById("overlay").style.display = "block";
+}
+
+function closeOrders() {
+  document.getElementById("ordersModal").style.display = "none";
+  document.getElementById("overlay").style.display = "none";
+}
+
+/* 🔹 Event Listeners */
+document.getElementById("cartBtn").addEventListener("click", showCart);
+document.getElementById("authBtn").addEventListener("click", function() {
+  if (currentUser) {
+    // Logout
+    currentUser = null;
+    document.getElementById("authBtn").textContent = "Login";
+    document.getElementById("ordersBtn").style.display = "none";
+    alert("You have been logged out");
+  } else {
+    showAuth();
+  }
+});
+document.getElementById("ordersBtn").addEventListener("click", showOrders);
+
+// Initialize
+displayProducts();
+
+// Simulate order status changes after some time
+setInterval(() => {
+  orders.forEach(order => {
+    if (order.status === "processing" && Math.random() > 0.7) {
+      order.status = "delivered";
+    }
+  });
+}, 10000);
+</script>
+</body>
+</html>
+
+
+
+
